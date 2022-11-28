@@ -5,13 +5,14 @@ import locale
 import requests
 import time
 
-locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
+locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # Устанавливаем поддержку русского языка
 
-weekday_number = dt.datetime.now().weekday()
-weekday_name = dt.datetime.now().strftime("%A")
-current_date = dt.datetime.now().date()
+weekday_number = dt.datetime.now().weekday()  # Номер дня недели
+weekday_name = dt.datetime.now().strftime("%A")  # Название дня недели
+current_date = dt.datetime.now().date()  # Текущая дата
 
-base_url = config.SEND_POLL
+base_url = config.SEND_POLL  # URL для отправки опроса
+
 parameters = {
     'chat_id': config.CHAT_ID,
     'question': f'{current_date} ({weekday_name}) я работаю:',
@@ -27,8 +28,7 @@ parameters = {
 }
 
 while True:
-    poll_time = dt.datetime.now().time().strftime('%H:%M:%S')
-    if weekday_number in range(6) and poll_time == '09:00:00':
-        resp = requests.get(base_url, data=parameters)
-        print(resp.text, weekday_number)
-        time.sleep(60 * 60 * 24)
+    poll_time = dt.datetime.now().time().strftime('%H:%M:%S')  # Время опроса
+    if weekday_number in range(6) and poll_time == '09:00:00':  # Условие опроса в будние часы
+        requests.get(base_url, data=parameters)
+        time.sleep(60 * 60 * 24)   # Ожидание 1 день до следующего опроса
