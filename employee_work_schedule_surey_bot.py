@@ -29,6 +29,6 @@ parameters = {
 
 while True:
     poll_time = dt.datetime.now().time().strftime('%H:%M:%S')  # Время опроса
-    if weekday_number in range(6) and poll_time == '09:00:00':  # Условие опроса в будние часы
+    if weekday_number in range(6) and poll_time == config.POLL_TIME:  # Условие опроса в будние часы
         requests.get(base_url, data=parameters)
-        time.sleep(60 * 60 * 24)   # Ожидание 1 день до следующего опроса
+        time.sleep(config.POLL_DELAY)   # Ожидание 1 день до следующего опроса
