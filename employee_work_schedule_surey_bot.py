@@ -4,24 +4,35 @@ import json
 import locale
 import requests
 import time
+import holidays
 
 locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')  # Устанавливаем поддержку русского языка
-
+next_day = dt.datetime.now() + dt.timedelta(1)
 weekday_number = dt.datetime.now().weekday()  # Номер дня недели
-weekday_name = dt.datetime.now().strftime("%A")  # Название дня недели
-current_date = dt.datetime.now().date()  # Текущая дата
-
+next_weekday_name = next_day.strftime("%A")  # Название завтрашнего дня недели
+next_date = next_day.date()  # Завтрашняя дата
+ru_holidays = holidays.RU()
 base_url = config.SEND_POLL  # URL для отправки опроса
+
+NEXT_DAY_NAME = {
+    'понедельник': 'в понедельник',
+    'вторник': 'во вторник',
+    'среда': 'в среду',
+    'четверг': 'в четверг',
+    'пятница': 'в пятницу',
+    'суббота': 'в субботу',
+    'воскресенье': 'в воскресенье',
+}
 
 parameters = {
     'chat_id': config.CHAT_ID,
-    'question': f'{current_date} ({weekday_name}) я работаю:',
+    'question': f'Завтра {next_date} {NEXT_DAY_NAME[next_weekday_name]}, я работаю:',
     'options': json.dumps([
-        'Из офиса. Полный рабочий день.',
-        'Из офиса. Первая половина дня.',
-        'Из офиса. Вторая половина дня.',
+        'Из офиса, полный рабочий день.',
+        'Из офиса, первая половина дня.',
+        'Из офиса, вторая половина дня.',
         'Удалённо.',
-        'Сегодня не работаю.',
+        'Завтра не работаю.',
     ]),
     'is_anonymous': False,
     'disable_notification': True,
@@ -29,6 +40,7 @@ parameters = {
 
 while True:
     poll_time = dt.datetime.now().time().strftime('%H:%M:%S')  # Время опроса
-    if weekday_number in range(6) and poll_time == config.POLL_TIME:  # Условие опроса в будние часы
+    # Условие опроса в указанные часы будних рабочих дней
+    if (weekday_number in (0, 1, 2, 3, 6) or poll_time == config.POLL_TIME) and next_date not in ru_holidays:
         requests.get(base_url, data=parameters)
         time.sleep(config.POLL_DELAY)   # Ожидание 1 день до следующего опроса
